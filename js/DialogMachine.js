@@ -15,11 +15,14 @@ export default class DialogMachine extends TalkMachine {
     this.shouldContinue = false;
 
     // initialiser les éléments de la machine de dialogue
-    this.maxLeds = 10;
+    this.maxLeds = 6;
     this.ui.initLEDUI();
 
     // Registre des états des boutons - simple array: 0 = released, 1 = pressed
-    this.buttonStates = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    this.buttonStates = [0, 0, 0, 0, 0, 0];
+    this.colors = ['red', 'green', 'blue'];
+    this.buttonColors = [-1, -1, -1, -1, -1, -1];
+
   }
 
   /* CONTRÔLE DU DIALOGUE */
@@ -27,7 +30,7 @@ export default class DialogMachine extends TalkMachine {
     this.dialogStarted = true;
     this.waitingForUserInput = true;
     // éteindre toutes les LEDs
-    this.ledsAllOff();
+    // this.ledsAllOff(); //!!!
     // effacer la console
     this.fancyLogger.clearConsole();
     // ----- initialiser les variables spécifiques au dialogue -----
@@ -43,7 +46,7 @@ export default class DialogMachine extends TalkMachine {
   /**
    * Fonction principale du flux de dialogue
    * @param {string} eventType - Type d'événement ('default', 'pressed', 'released', 'longpress')
-   * @param {number} button - Numéro du bouton (0-9)
+   * @param {number} button - Numéro du bouton (0-5) !!! 9 avant
    * @private
    */
   dialogFlow(eventType = 'default', button = -1) {
@@ -76,7 +79,7 @@ export default class DialogMachine extends TalkMachine {
     switch (this.nextState) {
       case 'initialisation':
         // CONCEPT DE DIALOGUE: État de configuration - prépare le système avant l'interaction
-        this.ledsAllOff();
+        // this.ledsAllOff();
         this.nextState = 'welcome';
         this.fancyLogger.logMessage('initialisation done');
         this.goToNextState();
@@ -84,12 +87,142 @@ export default class DialogMachine extends TalkMachine {
 
       case 'welcome':
         // CONCEPT DE DIALOGUE: Salutation - établit le contexte et définit les attentes
-        this.ledsAllChangeColor('white', 1);
+        this.ledsAllChangeColor('white'); //,1 pur blink avant
         this.fancyLogger.logMessage(
-          'Welcome, you have got 2 buttons, press one of them',
+          'Change your sequence',
         );
-        this.nextState = 'choose-color';
+        // this.nextState = 'choose-color';
+        this.nextState = 'select-orders';
         break;
+
+      case 'continue':
+        for (let i = 0; i < 6; i++) {
+          this.ledChangeColor(i, this.colors[this.buttonColors[i] % 3]);
+        }
+
+        this.fancyLogger.logMessage(
+          'You are not there yet, modify your sequence again',
+        );
+
+        this.nextState = 'select-orders';
+        break;
+        ;
+
+      case 'select-orders':
+
+        if (button == 0) {
+          // this.nextState = 'choose-blue';
+          // this.fancyLogger.logMessage(
+          //   'player 1 changed their first led color',
+          // );
+          this.buttonColors[0] += 1;
+          this.changeColor = (this.buttonColors[0] % 3);
+
+          this.ledChangeColor(0, this.colors[this.changeColor]);
+          // this.goToNextState();
+          this.nextState = 'select-orders';
+          this.goToNextState();
+        }
+
+        if (button == 1) {
+
+          // this.fancyLogger.logMessage(
+          //   'player 1 changed their second led color',
+          // );
+          this.buttonColors[1] += 1;
+          this.changeColor = (this.buttonColors[1] % 3);
+          this.ledChangeColor(1, this.colors[this.changeColor]);
+          this.nextState = 'select-orders';
+          this.goToNextState();
+        }
+        if (button == 2) {
+          // this.fancyLogger.logMessage(
+          //   'player 1 changed their third led color',
+          // );
+          this.buttonColors[2] += 1;
+          this.changeColor = (this.buttonColors[2] % 3);
+          this.ledChangeColor(2, this.colors[this.changeColor]);
+          this.nextState = 'select-orders';
+          this.goToNextState();
+        }
+
+        if (button == 3) {
+          // this.fancyLogger.logMessage(
+          //   'player 2 changed their first led color',
+          // );
+          this.buttonColors[3] += 1;
+          this.changeColor = (this.buttonColors[3] % 3);
+          this.ledChangeColor(3, this.colors[this.changeColor]);
+          this.nextState = 'select-orders';
+          this.goToNextState();
+        }
+
+        if (button == 4) {
+          // this.fancyLogger.logMessage(
+          //   'player 2 changed their second led color',
+          // );
+          this.buttonColors[4] += 1;
+          this.changeColor = (this.buttonColors[4] % 3);
+          this.ledChangeColor(4, this.colors[this.changeColor]);
+          this.nextState = 'select-orders';
+          this.goToNextState();
+        }
+        if (button == 5) {
+          // this.fancyLogger.logMessage(
+          //   'player 2 changed their third led color',
+          // );
+          this.buttonColors[5] += 1;
+          this.changeColor = (this.buttonColors[5] % 3);
+          this.ledChangeColor(5, this.colors[this.changeColor]);
+          this.nextState = 'select-orders';
+          this.goToNextState();
+        }
+
+        if (button == 6) {
+          this.fancyLogger.logMessage(
+            'both players are validating their sequences',
+          );
+
+          this.nextState = 'check-same';
+          this.goToNextState();
+        }
+        break;
+
+      case 'check-same':
+        this.ledsAllChangeColor('white', 2);
+        this.similarities = 0;
+        for (let i = 0; i < 3; i++) {
+          if (this.buttonColors[i] % 3 == this.buttonColors[i + 3] % 3) {
+            this.similarities += 1;
+          }
+        };
+
+        this.fancyLogger.logMessage(
+          `calculating similarities...`,
+        );
+
+        setTimeout(() => {
+          this.fancyLogger.logMessage(
+            `you have ${this.similarities} similarities between your sequences`);
+
+          if (this.similarities != 3) {
+            setTimeout(() => {
+              this.nextState = 'continue';
+              this.goToNextState();
+            }, 1000);
+          } else {
+            this.nextState = 'win';
+            this.goToNextState();
+          }
+        }, 3000);
+        break;
+        ;
+
+      case 'win':
+        this.fancyLogger.logMessage(
+          `Well Doooone`);
+        this.ledsAllChangeColor('green', 1);
+        ;
 
       case 'choose-color':
         // CONCEPT DE DIALOGUE: Branchement - le choix de l'utilisateur affecte le chemin de conversation
@@ -103,6 +236,7 @@ export default class DialogMachine extends TalkMachine {
           this.goToNextState();
         }
         break;
+
 
       case 'choose-blue':
         // CONCEPT DE DIALOGUE: Retour positif - renforce le choix de l'utilisateur
@@ -263,7 +397,7 @@ export default class DialogMachine extends TalkMachine {
   _handleButtonReleased(button, simulated = false) {
     this.buttonStates[button] = 0;
     if (this.waitingForUserInput) {
-      this.dialogFlow('released', button);
+      this.dialogFlow('released', button); //!!!
     }
   }
 
@@ -274,7 +408,7 @@ export default class DialogMachine extends TalkMachine {
    */
   _handleButtonLongPressed(button, simulated = false) {
     if (this.waitingForUserInput) {
-      //this.dialogFlow('longpress', button);
+      this.dialogFlow('longpress', button);
     }
   }
 
