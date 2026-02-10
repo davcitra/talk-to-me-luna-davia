@@ -20,7 +20,8 @@ export default class DialogMachine extends TalkMachine {
 
     // Registre des états des boutons - simple array: 0 = released, 1 = pressed
     this.buttonStates = [0, 0, 0, 0, 0, 0];
-    this.colors = ['red', 'green', 'blue'];
+    //black, white, red, green, blue, magenta, yellow, cyan, orange, purple, pink
+    this.colors = ['yellow', 'orange', 'pink'];
     this.buttonColors = [-1, -1, -1, -1, -1, -1];
 
   }
