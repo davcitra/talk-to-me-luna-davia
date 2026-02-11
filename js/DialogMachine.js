@@ -15,7 +15,7 @@ export default class DialogMachine extends TalkMachine {
     this.shouldContinue = false;
 
     // initialiser les éléments de la machine de dialogue
-    this.maxLeds = 6;
+    this.maxLeds = 7;
     this.ui.initLEDUI();
 
     // Registre des états des boutons - simple array: 0 = released, 1 = pressed
@@ -38,7 +38,7 @@ export default class DialogMachine extends TalkMachine {
     this.nextState = 'initialisation';
     this.buttonPressCounter = 0;
     // Préréglages de voix [index de voix, pitch, vitesse]
-    this.preset_voice_normal = ['en-GB', 1, 0.8]; // [voice index, pitch, rate]
+    this.preset_voice_normal = [192, 1, 0.8]; // [voice index, pitch, rate]
     // ----- démarrer la machine avec le premier état -----
     this.dialogFlow();
   }
@@ -47,7 +47,7 @@ export default class DialogMachine extends TalkMachine {
   /**
    * Fonction principale du flux de dialogue
    * @param {string} eventType - Type d'événement ('default', 'pressed', 'released', 'longpress')
-   * @param {number} button - Numéro du bouton (0-5) !!! 9 avant
+   * @param {number} button - Numéro du bouton (0-6) !!! 9 avant
    * @private
    */
   dialogFlow(eventType = 'default', button = -1) {
@@ -88,18 +88,23 @@ export default class DialogMachine extends TalkMachine {
 
       case 'welcome':
         // CONCEPT DE DIALOGUE: Salutation - établit le contexte et définit les attentes
-        this.ledsAllChangeColor('white'); //,1 pur blink avant
-        this.fancyLogger.logMessage(
-          'Change your sequence',
-        );
+        this.ledsAllChangeColor('black'); //,1 pur blink avant
+        this.ledChangeColor(6, 'white') //mettre low opacity
+        // this.fancyLogger.logMessage(
+        //   'Change your sequence',
+        // );
         // this.nextState = 'choose-color';
+
+        // if (button == 6) { }
         this.nextState = 'select-orders';
         break;
+
 
       case 'continue':
         for (let i = 0; i < 6; i++) {
           this.ledChangeColor(i, this.colors[this.buttonColors[i] % 3]);
         }
+        this.ledChangeColor(6, 'green')
 
         this.fancyLogger.logMessage(
           'You are not there yet, modify your sequence again',
@@ -190,7 +195,23 @@ export default class DialogMachine extends TalkMachine {
         break;
 
       case 'check-same':
-        this.ledsAllChangeColor('white', 2);
+        // this.ledsAllChangeColor('white', 2);
+
+        for (let i = 0; i < 6; i++) {
+          this.ledChangeColor(i, 'white', 2);
+        }
+
+
+        // this.ledChangeColor(3, 'white', 2);
+        // setTimeout(() => {
+        //   this.ledChangeColor(4, 'white', 2);
+        //   setTimeout(() => {
+        //     this.ledChangeColor(5, 'white', 2);
+        //   }, 1000);
+        // }, 1000);
+
+
+
         this.similarities = 0;
         for (let i = 0; i < 3; i++) {
           if (this.buttonColors[i] % 3 == this.buttonColors[i + 3] % 3) {
@@ -222,8 +243,32 @@ export default class DialogMachine extends TalkMachine {
       case 'win':
         this.fancyLogger.logMessage(
           `Well Doooone`);
-        this.ledsAllChangeColor('green', 1);
+        this.speakNormal('Well done youuu, you managed to agree with your partner');
+
+        // setTimeout(() => {
+        //   this.speechText(
+        //     'Enough is enough! I dont want to be pressed anymore!',
+        //     [192, 1, 0.8],
+        //   );
+        // }, 3000);
+
+        // this.ledsAllChangeColor('green', 1);
+
+        for (let i = 0; i < 6; i++) {
+          this.ledChangeColor(i, 'green', 1);
+        }
+
         ;
+
+
+
+
+
+
+
+
+
+
 
       case 'choose-color':
         // CONCEPT DE DIALOGUE: Branchement - le choix de l'utilisateur affecte le chemin de conversation
