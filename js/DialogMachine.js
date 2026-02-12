@@ -92,6 +92,7 @@ export default class DialogMachine extends TalkMachine {
         this.nextState = 'veille';
         this.fancyLogger.logMessage('initialisation done');
         this.goToNextState();
+
         break;
 
       // case 'welcome': //A SUPPRIMER
@@ -168,7 +169,7 @@ export default class DialogMachine extends TalkMachine {
         setTimeout(() => {
           this.nextState = 'select-orders';
           this.goToNextState();
-        }, 13000); //12850
+        }, 13500); //12850
         break;
         ;
 
@@ -286,12 +287,17 @@ export default class DialogMachine extends TalkMachine {
 
 
       case 'incomplete':
+        this.ledChangeColor(6, 'white', 2); //changer en variation rapide de calcul
+        this.ledChangeColor(7, 'white', 2);
         this.speechText(
           `Colors incomplete`, //REFORMULER CA
           [192, 1, 0.8],
         );
-        this.nextState = 'select-orders';
-        this.goToNextState();
+        setTimeout(() => {
+          this.nextState = 'select-orders';
+          this.goToNextState();
+        }, 2000)
+
         break;
 
         ;
@@ -362,10 +368,10 @@ export default class DialogMachine extends TalkMachine {
 
 
 
-      case 'end-calcul': //06 DELAY
-        //AJOUT SON FIN CALCUL
+      // case 'end-calcul': //06 DELAY
+      //   //AJOUT SON FIN CALCUL
 
-        ;
+      //   ;
 
 
       case 'win': //07 GAGNÉ
@@ -504,7 +510,7 @@ export default class DialogMachine extends TalkMachine {
         for (let i = 0; i < 6; i++) {
           this.ledChangeColor(i, 'white') //partyyy
         }
-        if (button == 6 && this.restartOk == true) {
+        if (button == 6 && this.restartOk == true && eventType !== 'longpress') {
 
 
           // this.ui.turnOffAllLeds();
