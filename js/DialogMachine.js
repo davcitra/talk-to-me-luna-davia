@@ -249,22 +249,50 @@ export default class DialogMachine extends TalkMachine {
           this.goToNextState();
         }
 
+        this.complete = false;
+
+        if (this.buttonColors[0] !== -1 && this.buttonColors[1] !== -1 && this.buttonColors[2] !== -1 && this.buttonColors[3] !== -1 && this.buttonColors[4] !== -1 && this.buttonColors[5] !== -1) {
+          this.complete = true;
+        }
+
+
         if (button == 6 && this.restartOk == false && eventType !== 'longpress') {
 
-          if (this.research.paused) {
-            this.research.volume = 1;
-            this.research.play();
-          }
+          if (this.complete == false) {
+            this.nextState = 'incomplete';
+            this.goToNextState();
+          };
 
-          // this.playAudioFile('./audio/validation.mp3')
-          this.fancyLogger.logMessage(
-            'both players are validating their sequences',
-          );
+          if (this.complete == true) {
+            if (this.research.paused) {
+              this.research.volume = 1;
+              this.research.play();
+            }
 
-          this.nextState = 'check-same';
-          this.goToNextState();
+            // this.playAudioFile('./audio/validation.mp3')
+            this.fancyLogger.logMessage(
+              'both players are validating their sequences',
+            );
+
+            this.nextState = 'check-same';
+            this.goToNextState();
+          };
+
+
         }
         break;
+
+
+      case 'incomplete':
+        this.speechText(
+          `Colors incomplete`, //REFORMULER CA
+          [192, 1, 0.8],
+        );
+        this.nextState = 'select-orders';
+        this.goToNextState();
+        break;
+
+        ;
 
       case 'check-same': //05 VALIDATION
         //AJOUTER SON DE RECHERCHE
