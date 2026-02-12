@@ -15,7 +15,7 @@ export default class DialogMachine extends TalkMachine {
     this.shouldContinue = false;
 
     // initialiser les éléments de la machine de dialogue
-    this.maxLeds = 7;
+    this.maxLeds = 8;
     this.ui.initLEDUI();
 
     // Registre des états des boutons - simple array: 0 = released, 1 = pressed
@@ -113,8 +113,9 @@ export default class DialogMachine extends TalkMachine {
           this.ledChangeColor(i, 'black'); //,1 pur blink avant
         }
 
-        //white, red, blue, magenta, cyan, orange, purple, pink
-        this.ledChangeColor(6, 'orange', 0); //mettre low opacity
+        //purple, pink.
+        this.ledChangeColor(6, 'purple', 0); //mettre low opacity
+        this.ledChangeColor(7, 'purple', 0); //mettre low opacity
         // this.ledChangeColor(6, 'white', 0); //mettre low opacity
         // this.fancyLogger.logMessage(
         //   'Press to turn on the game',
@@ -128,9 +129,8 @@ export default class DialogMachine extends TalkMachine {
           this.nextState = 'veille';
           this.goToNextState();
         }
-        if (button == 6 && this.restart == false) {
+        if (button == 6 && this.restart == false) { // ///???
           this.nextState = 'allumage';
-
           this.goToNextState();
           break;
         }
@@ -142,6 +142,7 @@ export default class DialogMachine extends TalkMachine {
 
         this.fancyLogger.logMessage('allumage');
         this.ledChangeColor(6, 'white');
+        this.ledChangeColor(7, 'white');
         if (this.turnOn.paused) {
           this.turnOn.volume = 1;
           this.turnOn.play();
@@ -151,7 +152,7 @@ export default class DialogMachine extends TalkMachine {
         setTimeout(() => {
 
           this.ledChangeColor(6, 'white', 2); //full opacity
-
+          this.ledChangeColor(7, 'white', 2); //full opacity
         }, 1500); //1000
 
         //after Delay;
@@ -180,6 +181,7 @@ export default class DialogMachine extends TalkMachine {
       case 'select-orders': //04 ON PRESSED
         // this.fancyLogger.logMessage('select');
         this.ledChangeColor(6, 'white'); //change to low intensity
+        this.ledChangeColor(7, 'white'); //change to low intensity
 
         if (button == 0) {
           // this.nextState = 'choose-blue';
@@ -299,6 +301,7 @@ export default class DialogMachine extends TalkMachine {
 
         // this.ledsAllChangeColor('white', 2);
         this.ledChangeColor(6, 'white', 1); //changer en variation rapide de calcul
+        this.ledChangeColor(7, 'white', 1); //changer en variation rapide de calcul
 
         for (let i = 0; i < 6; i++) {
           this.changeColor = (this.buttonColors[i] % 3);
@@ -374,6 +377,7 @@ export default class DialogMachine extends TalkMachine {
           this.ledChangeColor(i, 'white', 1);
         }
         this.ledChangeColor(6, 'white', 2);
+        this.ledChangeColor(7, 'white', 2);
 
         this.speakNormal('It\'s a match ! You\'re so connected.');
 
@@ -405,6 +409,7 @@ export default class DialogMachine extends TalkMachine {
           this.ledChangeColor(i, this.colors[this.buttonColors[i] % 3]);
         }
         this.ledChangeColor(6, 'white', 2);
+        this.ledChangeColor(7, 'white', 2);
 
         // this.fancyLogger.logMessage(
         //   'You are not there yet, modify your sequence again',
@@ -418,6 +423,7 @@ export default class DialogMachine extends TalkMachine {
 
         setTimeout(() => {
           this.ledChangeColor(6, 'white', 2);
+          this.ledChangeColor(7, 'white', 2);
           if (this.similarities == 0) {
 
             this.speechText(
@@ -451,6 +457,7 @@ export default class DialogMachine extends TalkMachine {
 
         setTimeout(() => {
           this.ledChangeColor(6, 'white');
+          this.ledChangeColor(7, 'white');
         }, 3900)
 
 
@@ -493,6 +500,7 @@ export default class DialogMachine extends TalkMachine {
         // SON RESTART
         // this.ledsAllChangeColor('white') //low opacity
         this.ledChangeColor(6, 'white');
+        this.ledChangeColor(7, 'white');
         for (let i = 0; i < 6; i++) {
           this.ledChangeColor(i, 'white') //partyyy
         }
@@ -520,7 +528,7 @@ export default class DialogMachine extends TalkMachine {
             };
             this.nextState = 'select-orders';
             this.goToNextState();
-          }, 2000);
+          }, 2000); //AJUSTER CETTE VALEUR
 
         }
         break;
@@ -540,6 +548,7 @@ export default class DialogMachine extends TalkMachine {
         for (let i = 0; i < 6; i++) {
           this.ledChangeColor(i, 'black'); //,1 pur blink avant
         };
+        this.restartOk = false;
         this.nextState = 'veille';
         this.goToNextState();
         break;
