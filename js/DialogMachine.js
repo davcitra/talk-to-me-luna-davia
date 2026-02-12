@@ -87,7 +87,7 @@ export default class DialogMachine extends TalkMachine {
     switch (this.nextState) {
       case 'initialisation': //00 INIT
         // CONCEPT DE DIALOGUE: État de configuration - prépare le système avant l'interaction
-        // this.ledsAllOff();
+        this.ledsAllOff();
         // this.nextState = 'welcome';
         this.nextState = 'veille';
         this.fancyLogger.logMessage('initialisation done');
@@ -113,7 +113,8 @@ export default class DialogMachine extends TalkMachine {
           this.ledChangeColor(i, 'black'); //,1 pur blink avant
         }
 
-        this.ledChangeColor(6, 'white', 0); //mettre low opacity
+        //white, red, blue, magenta, cyan, orange, purple, pink
+        this.ledChangeColor(6, 'orange', 0); //mettre low opacity
         // this.ledChangeColor(6, 'white', 0); //mettre low opacity
         // this.fancyLogger.logMessage(
         //   'Press to turn on the game',
@@ -129,6 +130,7 @@ export default class DialogMachine extends TalkMachine {
         }
         if (button == 6 && this.restart == false) {
           this.nextState = 'allumage';
+
           this.goToNextState();
           break;
         }
@@ -137,8 +139,9 @@ export default class DialogMachine extends TalkMachine {
 
       case 'allumage': //02 ALLUMAGE
         //bruit allumage
-        this.fancyLogger.logMessage('allumage');
 
+        this.fancyLogger.logMessage('allumage');
+        this.ledChangeColor(6, 'white');
         if (this.turnOn.paused) {
           this.turnOn.volume = 1;
           this.turnOn.play();
@@ -164,7 +167,7 @@ export default class DialogMachine extends TalkMachine {
         setTimeout(() => {
           this.nextState = 'select-orders';
           this.goToNextState();
-        }, 12850);
+        }, 13000); //12850
         break;
         ;
 
@@ -246,7 +249,7 @@ export default class DialogMachine extends TalkMachine {
           this.goToNextState();
         }
 
-        if (button == 6 && this.restartOk == false) {
+        if (button == 6 && this.restartOk == false && eventType !== 'longpress') {
 
           if (this.research.paused) {
             this.research.volume = 1;
@@ -311,11 +314,12 @@ export default class DialogMachine extends TalkMachine {
             this.validation.play();
           }
           if (this.similarities != 3) {
-
+            // this.ledChangeColor(6, 'white', 2);
             this.nextState = 'continue';
             this.goToNextState();
 
           } else {
+            // this.ledChangeColor(6, 'white', 2);
             this.nextState = 'win';
             this.goToNextState();
           }
@@ -357,7 +361,7 @@ export default class DialogMachine extends TalkMachine {
         setTimeout(() => {
           this.nextState = 'party';
           this.goToNextState();
-        }, 3000)
+        }, 3500)
 
         break;
 
@@ -385,26 +389,30 @@ export default class DialogMachine extends TalkMachine {
         this.delay = 0;
 
         setTimeout(() => {
+          this.ledChangeColor(6, 'white', 2);
           if (this.similarities == 0) {
+
             this.speechText(
               `Nothing in common, what a shame…`,
               [192, 1, 0.8],
             );
-            this.delay = 2000;
+            this.delay = 4000;
           };
           if (this.similarities == 1) {
+
             this.speechText(
-              `Only one common color. Try again !`,
+              `Only one common color. Try again !`, //maybe retarder un peu
               [192, 1, 0.8],
             );
-            this.delay = 2000;
+            this.delay = 4000;
           };
           if (this.similarities == 2) {
+
             this.speechText(
-              `Two similar colors, you're almost there !`,
+              `Two similar colors, you're almost there !`, //good
               [192, 1, 0.8],
             );
-            this.delay = 2000;
+            this.delay = 4000;
           };
 
           // this.speechText(
@@ -413,6 +421,9 @@ export default class DialogMachine extends TalkMachine {
           // );
         }, 1000);
 
+        setTimeout(() => {
+          this.ledChangeColor(6, 'white');
+        }, 3900)
 
 
         setTimeout(() => {
@@ -459,29 +470,52 @@ export default class DialogMachine extends TalkMachine {
         }
         if (button == 6 && this.restartOk == true) {
 
-          for (let i = 0; i < 6; i++) {
-            this.ledChangeColor(i, 'black'); //,1 pur blink avant
-          };
-          this.buttonColors[-1, -1, -1, -1, -1, -1];
+
+          // this.ui.turnOffAllLeds();
+          this.buttonColors = [-1, -1, -1, -1, -1, -1];
+          // this.endOk = false;
           this.restartOk = false;
           if (this.restart.paused) {
             this.restart.volume = 1;
             this.restart.play();
+            // this.endOk = true;
           }
-          this.nextState = 'select-orders';
-          this.goToNextState();
+
+          // if (this.restart.paused && this.endOk == true) {
+
+          //   // this.endOk = false;
+          // }
+
+          setTimeout(() => {
+            for (let i = 0; i < 6; i++) {
+              this.ledChangeColor(i, 'black'); //,1 pur blink avant
+            };
+            this.nextState = 'select-orders';
+            this.goToNextState();
+          }, 2000);
+
         }
         break;
         ;
 
-      // case 'shut-down': //11 LONG PRESS SHUT DOWN
-      //   //SON SHUT DOWN
-      //   this.fancyLogger.logMessage(
-      //     'the system has been shut down',
-      //   );
-      //   this.ledsAllChangeColor('black');
-      //   this.ledChangeColor(6, 'white') //low opacity
-      //     ;
+      case 'shut-down': //11 LONG PRESS SHUT DOWN
+        //SON SHUT DOWN
+        this.fancyLogger.logMessage(
+          'the system has been shut down',
+        );
+        if (this.turnOff.paused) {
+          this.turnOff.volume = 1;
+          this.turnOff.play();
+          // this.endOk = true;
+        }
+        this.buttonColors = [-1, -1, -1, -1, -1, -1];
+        for (let i = 0; i < 6; i++) {
+          this.ledChangeColor(i, 'black'); //,1 pur blink avant
+        };
+        this.nextState = 'veille';
+        this.goToNextState();
+        break;
+        ;
 
 
 
@@ -681,10 +715,10 @@ export default class DialogMachine extends TalkMachine {
       this.dialogFlow('longpress', button);
     }
 
-    // if (button == 6) {
-    //   this.nextState = 'shut-down';
-    //   this.goToNextState();
-    // }
+    if (button == 6) {
+      this.nextState = 'shut-down';
+      this.goToNextState();
+    }
 
   }
 
